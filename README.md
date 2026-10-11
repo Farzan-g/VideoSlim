@@ -1,101 +1,91 @@
 # VideoSlim
 
-VideoSlim is a local-first batch video compression tool built around Python, FFmpeg, and FFprobe. It is designed for recursive scanning, safe previewing, and configurable compression workflows without requiring cloud services or telemetry.
+VideoSlim is a command-line program for finding videos in a folder and making
+compressed copies with FFmpeg. It can scan folders and subfolders, preview
+which files it will process, inspect video files, and write compressed results
+without replacing the originals.
 
-## What it does
+> **Important:** compression previews are the default. Add `--no-dry-run` only
+> when you are ready to create output files. Use a separate output folder to
+> keep the original videos easy to find.
 
-- Recursively discovers candidate video files in a directory tree.
-- Validates candidates with FFprobe instead of trusting file extensions alone.
-- Support built-in compression profiles such as Balanced, Maximum Savings, High Quality, and Archive.
-- Provides a CLI-first workflow for scanning, analyzing, compressing, and reporting.
-- Keeps original files intact by default and rejects unsafe output behaviors.
-- Exposes a GUI layer as an optional dependency rather than a required installation.
+## Get started
+
+1. Install Python 3.11 or newer and FFmpeg. FFmpeg includes the `ffprobe`
+   companion program used to inspect videos. Follow the
+   [step-by-step installation guide](docs/installation.md).
+2. Open a terminal in the VideoSlim project folder and install the app in its
+   own Python environment. On Windows, use PowerShell:
+
+   ```powershell
+   py -m venv .venv
+   .\.venv\Scripts\python.exe -m pip install -e .
+   ```
+
+3. Check that the app and video tools are available:
+
+   ```powershell
+   .\.venv\Scripts\videoslim doctor
+   ```
+
+4. Preview the videos in a folder. Put quotation marks around paths that
+   contain spaces:
+
+   ```powershell
+   $source = "$HOME\Videos"
+   .\.venv\Scripts\videoslim compress $source --profile balanced --dry-run
+   ```
+
+5. When the preview looks right, create compressed copies in another folder:
+
+   ```powershell
+   $source = "$HOME\Videos"
+   $output = "$HOME\Videos_Compressed"
+   .\.venv\Scripts\videoslim compress $source --output $output --profile balanced --no-dry-run
+   ```
+
+   The program creates the output folder as needed. It keeps each video's
+   subfolder structure and leaves the source files in place.
+
+If you activate `.venv` first, you can use `videoslim` instead of the longer
+`.venv\Scripts\videoslim` path. See the [CLI guide](docs/cli.md) for all
+commands and examples.
+
+## What VideoSlim can do
+
+- Recursively scan folders for common video file types.
+- Inspect recognized files with FFprobe when it is installed.
+- Preview compression tasks without writing compressed files.
+- Compress files one at a time with a built-in profile and FFmpeg.
+- Write results beside the source files or under a separate output folder.
+- Show FFmpeg, FFprobe, and encoder availability with `doctor`.
+- Validate, import, export, list, and show profile data through CLI commands.
+- Create a JSON diagnostic report.
+
+This is an early-stage, CLI-first project. See
+[what is not finished](docs/troubleshooting.md#current-limitations) before
+relying on it for unattended or archival work.
+
+## Guides
+
+- [Installation and setup](docs/installation.md)
+- [Command-line reference](docs/cli.md)
+- [Compression profiles](docs/profiles.md)
+- [Codecs and hardware acceleration](docs/codecs.md)
+- [Configuration file](docs/configuration.md)
+- [Troubleshooting and limitations](docs/troubleshooting.md)
+- [GUI status](docs/gui.md)
+- [Project scripts](docs/scripts.md)
+- [Architecture](docs/architecture.md)
+- [Development and tests](docs/development.md)
 
 ## Supported operating systems
 
-- Windows: supported in the project architecture and verified through the CLI flow in this environment.
-- Linux: supported by the same CLI/core architecture.
-- macOS: supported in the design and optional platform hooks, but not fully runtime-verified in this environment.
-
-## Installation
-
-```bash
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -U pip
-.venv\Scripts\python.exe -m pip install -e '.[dev]'
-```
-
-On Linux/macOS:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -U pip
-python -m pip install -e '.[dev]'
-```
-
-### FFmpeg and FFprobe requirements
-
-Install FFmpeg and FFprobe and ensure they are on PATH. The core engine relies on them for validation and compression jobs.
-
-- Windows: install FFmpeg from a trusted build and add the bin directory to PATH.
-- Linux: install via your distribution package manager if available.
-- macOS: install via Homebrew if available on the target machine.
-
-If FFmpeg is not available, the CLI still starts and reports the missing dependency through the doctor command.
-
-## Quick start
-
-```bash
-videoslim --help
-videoslim scan /path/to/videos
-videoslim analyze /path/to/videos
-videoslim compress /path/to/videos --profile balanced --dry-run
-videoslim compress /path/to/videos --profile nvidia_hevc --no-dry-run
-videoslim doctor
-```
-
-Compression previews are the default. Use `--no-dry-run` to write compressed
-outputs next to the source files (the originals are kept). FFmpeg must be
-installed and available on `PATH`; FFprobe is optional for discovering files,
-but is required to validate media before processing when it is available.
-
-## Built-in profiles
-
-The project currently includes these profiles:
-
-- balanced
-- maximum_savings
-- high_quality
-- fast_cpu
-- nvidia_hevc
-- archive
-- compatibility_h264
-
-Each is validated through the profile schema before use.
-
-## Safety defaults
-
-- Original files are preserved unless a clearly authorized replacement policy is used.
-- Output directories may not overlap the input tree in a way that would recurse into source files.
-- File extension checks are treated as hints, not proof that a file is valid video.
-- When FFprobe is available, candidate files are validated before they are accepted. Without FFprobe, supported extensions are included as candidates and FFmpeg validates them during compression.
-- Dry-run mode previews actions without modifying source files.
-
-## Known limitations
-
-- Real FFmpeg/FFprobe validation requires the binaries to be installed and available on PATH.
-- Hardware encoder support depends on the installed FFmpeg build and actual host capabilities, not just GPU presence.
-- The optional GUI depends on PySide6 and is not required for the CLI/core workflow.
-- This project is production-minded but intentionally conservative about unsupported codecs and file types.
-
-## Development
-
-```bash
-.venv\Scripts\python.exe -m pytest -q
-.venv\Scripts\python.exe -m ruff check .
-```
+The code includes Windows, Linux, and macOS platform detection. The command
+line is the implemented user interface. The CI test workflow currently runs on
+Ubuntu with Python 3.11; other operating systems and Python versions should be
+treated as not fully verified.
 
 ## License
 
-VideoSlim is distributed under the MIT license. See the LICENSE file for the full text.
+VideoSlim is distributed under the MIT license. See [LICENSE](LICENSE).
