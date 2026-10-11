@@ -51,8 +51,14 @@ videoslim --help
 videoslim scan /path/to/videos
 videoslim analyze /path/to/videos
 videoslim compress /path/to/videos --profile balanced --dry-run
+videoslim compress /path/to/videos --profile nvidia_hevc --no-dry-run
 videoslim doctor
 ```
+
+Compression previews are the default. Use `--no-dry-run` to write compressed
+outputs next to the source files (the originals are kept). FFmpeg must be
+installed and available on `PATH`; FFprobe is optional for discovering files,
+but is required to validate media before processing when it is available.
 
 ## Built-in profiles
 
@@ -73,7 +79,7 @@ Each is validated through the profile schema before use.
 - Original files are preserved unless a clearly authorized replacement policy is used.
 - Output directories may not overlap the input tree in a way that would recurse into source files.
 - File extension checks are treated as hints, not proof that a file is valid video.
-- FFprobe validation is required before a file is accepted as a valid media candidate.
+- When FFprobe is available, candidate files are validated before they are accepted. Without FFprobe, supported extensions are included as candidates and FFmpeg validates them during compression.
 - Dry-run mode previews actions without modifying source files.
 
 ## Known limitations

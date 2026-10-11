@@ -115,7 +115,7 @@ class VideoScanner:
                     "ffprobe_available": probe.ffprobe_available,
                     "warnings": probe.warnings,
                 }
-                if probe.is_valid_video:
+                if probe.is_valid_video or not probe.ffprobe_available:
                     results.append(candidate)
 
         return results

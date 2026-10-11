@@ -11,6 +11,7 @@ from rich.console import Console
 
 from videoslim.config.loader import load_config, save_default_config
 from videoslim.config.paths import default_config_path
+from videoslim.core.encoder import EncodeRequest, encode_file
 from videoslim.core.models import ScanConfig
 from videoslim.core.planner import build_plan
 from videoslim.core.probe import probe_media
@@ -25,6 +26,7 @@ from videoslim.platform.ffmpeg_capabilities import (
 )
 from videoslim.profiles.defaults import DEFAULT_PROFILES
 from videoslim.profiles.loader import list_builtin_profiles, load_profile, validate_profile
+from videoslim.profiles.schema import ProfileConfig
 
 app = typer.Typer(help="VideoSlim command-line interface")
 console = Console()
@@ -89,14 +91,52 @@ def compress(
         typer.Option(help="Directory for compressed outputs"),
     ] = None,
     profile: Annotated[str, typer.Option(help="Profile to use")] = "balanced",
-    dry_run: Annotated[bool, typer.Option(help="Preview the encoding plan without writing files")] = True,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run/--no-dry-run", help="Preview the encoding plan without writing files"),
+    ] = True,
 ) -> None:
     config = ScanConfig(input_dir=path, output_dir=output, scan_only=dry_run)
     files = VideoScanner().scan_directory(config)
-    plan = build_plan(files, preset=profile, output_dir=output)
+    profile_config = ProfileConfig(**load_profile(profile))
+    plan = build_plan(
+        files,
+        preset=profile,
+        output_dir=output,
+        container=profile_config.container or "mp4",
+    )
     console.print(f"Prepared {len(plan)} task(s) using profile '{profile}'.")
     for item in plan[:20]:
         console.print(f"- {item['source']} -> {item['output']}")
+
+    if dry_run:
+        return
+    if not ffmpeg_available():
+        raise typer.BadParameter(
+            "ffmpeg is not installed or not available on PATH; install FFmpeg before compressing.",
+            param_hint="--no-dry-run",
+        )
+
+    audio_config = profile_config.audio
+    audio_codec = audio_config.get("codec", "aac")
+    if not isinstance(audio_codec, str):
+        raise typer.BadParameter(f"Profile '{profile}' has an invalid audio codec.")
+
+    crf = profile_config.crf if profile_config.crf is not None else 28
+    for item in plan:
+        encode_file(
+            EncodeRequest(
+                source=Path(str(item["source"])),
+                destination=Path(str(item["output"])),
+                preset=profile_config.preset,
+                codec=profile_config.codec,
+                crf=crf,
+                cq=profile_config.cq,
+                audio_codec=audio_codec,
+                dry_run=False,
+            )
+        )
+        console.print(f"Compressed {item['source']} -> {item['output']}")
 
 
 @profile_app.command("list")

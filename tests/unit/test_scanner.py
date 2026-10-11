@@ -63,6 +63,19 @@ def test_scanner_requires_ffprobe_validation_for_mp4_candidates(tmp_path, monkey
     assert files == []
 
 
+def test_scanner_includes_video_candidates_when_ffprobe_is_unavailable(tmp_path, monkeypatch):
+    input_dir = tmp_path / "input"
+    input_dir.mkdir()
+    video = input_dir / "clip.mp4"
+    video.write_bytes(b"video")
+
+    monkeypatch.setattr("videoslim.core.probe.ffprobe_available", lambda: False)
+    files = VideoScanner().scan_directory(ScanConfig(input_dir=input_dir))
+
+    assert [item.path for item in files] == [video]
+    assert not files[0].is_valid_video
+
+
 def test_verify_output_file_requires_valid_video_stream(tmp_path, monkeypatch):
     output = tmp_path / "bad-output.mp4"
     output.write_bytes(b"not a real video")

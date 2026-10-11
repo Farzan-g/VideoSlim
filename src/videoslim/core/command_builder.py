@@ -10,6 +10,7 @@ def build_ffmpeg_command(
     codec: str = "libx264",
     preset: str = "medium",
     crf: int = 28,
+    cq: int | None = None,
     audio_codec: str = "aac",
     extra_args: list[str] | None = None,
 ) -> list[str]:
@@ -22,8 +23,8 @@ def build_ffmpeg_command(
         codec,
         "-preset",
         preset,
-        "-crf",
-        str(crf),
+        "-cq" if codec.endswith("_nvenc") and cq is not None else "-crf",
+        str(cq if codec.endswith("_nvenc") and cq is not None else crf),
         "-c:a",
         audio_codec,
     ]

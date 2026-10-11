@@ -82,7 +82,7 @@ def supported_encoders() -> list[str]:
     available = set()
     output = completed.stdout or completed.stderr or ""
     for line in output.splitlines():
-        match = re.search(r"\s+(?:V|A|S|F)\.\s+([^\s]+)\s+", line)
+        match = re.search(r"\s+[VAS][A-Z.]{5}\s+([^\s]+)\s+", line)
         if match:
             available.add(match.group(1))
 

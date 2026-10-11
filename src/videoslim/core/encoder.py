@@ -17,6 +17,7 @@ class EncodeRequest:
     dry_run: bool = True
     ffmpeg_path: str = "ffmpeg"
     crf: int = 28
+    cq: int | None = None
     audio_codec: str = "aac"
     extra_args: list[str] | None = None
 
@@ -37,6 +38,7 @@ def encode_file(request: EncodeRequest) -> bool:
         codec=request.codec,
         preset=request.preset,
         crf=request.crf,
+        cq=request.cq,
         audio_codec=request.audio_codec,
         extra_args=request.extra_args,
     )
