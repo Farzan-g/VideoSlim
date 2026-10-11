@@ -1,0 +1,6 @@
+{
+  "name": "nvidia_hevc",
+  "codec": "hevc_nvenc",
+  "preset": "p4",
+  "cq": 28
+}

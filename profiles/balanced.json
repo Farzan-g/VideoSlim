@@ -1,0 +1,6 @@
+{
+  "name": "balanced",
+  "codec": "libx264",
+  "preset": "medium",
+  "crf": 28
+}

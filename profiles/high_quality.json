@@ -1,0 +1,6 @@
+{
+  "name": "high_quality",
+  "codec": "libx264",
+  "preset": "slow",
+  "crf": 22
+}

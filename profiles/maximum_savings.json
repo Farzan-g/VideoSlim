@@ -1,0 +1,6 @@
+{
+  "name": "maximum_savings",
+  "codec": "libx265",
+  "preset": "slower",
+  "crf": 32
+}

@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "videoslim"
+version = "0.1.0"
+description = "Cross-platform batch video compression tool"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "VideoSlim Contributors" }]
+license = "MIT"
+keywords = ["video", "ffmpeg", "compression", "cli"]
+dependencies = [
+  "typer>=0.12.0",
+  "rich>=13.7.0",
+  "pydantic>=2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.5.0",
+  "mypy>=1.10.0",
+]
+gui = [
+  "PySide6>=6.6.0",
+]
+
+[project.scripts]
+videoslim = "videoslim.cli.app:app"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

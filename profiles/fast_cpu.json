@@ -1,0 +1,6 @@
+{
+  "name": "fast_cpu",
+  "codec": "libx264",
+  "preset": "faster",
+  "crf": 30
+}

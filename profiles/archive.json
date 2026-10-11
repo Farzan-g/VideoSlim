@@ -1,0 +1,6 @@
+{
+  "name": "archive",
+  "codec": "libx265",
+  "preset": "slow",
+  "crf": 24
+}
